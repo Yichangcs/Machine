@@ -101,7 +101,7 @@
                  (execute))
                 ((eq? message  'install-instructions-sequence)
                  (lambda (seq) (set! the-instruction-sequence seq)))
-                ((eq? message 'allocate-register) lookup-register)
+                ((eq? message 'allocate-register) allocate-register)
                 ((eq? message 'get-register) lookup-register)
                 ((eq? message 'install-operations)
                    (lambda (ops)
