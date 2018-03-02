@@ -1,6 +1,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;             The Assembler               ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(load "machine.scm")
+
+
+
 (define (assemble controller-text machine)
    (extract-labels controller-text
       (lambda (insts labels)
@@ -289,7 +294,7 @@
    (cdr operation-exp))
 
 
-(define (loopup-prim symbol operations)
+(define (lookup-prim symbol operations)
   (let ((val (assoc symbol operations)))
     (if val
         (cadr val)
@@ -297,6 +302,6 @@
               symbol))))
 
 
-
-
+(define (tagged-list? exp symbol)
+   (eq? (car exp) symbl))
 
