@@ -100,7 +100,7 @@
                  "Multiply defined register: " name)
               (set! register-table
                     (cons 
-                      (lsit name (make-register name))
+                      (list name (make-register name))
                       register-table))) 
               'register-allocated)
        (define (lookup-register name)
