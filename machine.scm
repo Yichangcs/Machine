@@ -1,6 +1,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;           The machine                 ;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(load "assemble.scm")
+
 
 (define (make-machine register-names ops controller-text)
    (let ((machine (make-new-machine)))
@@ -90,7 +92,7 @@
                      (lambda () (stack 'initialize)))
                (list 'print-stack-statistics
                       (labmda ()
-                         (stack 'print-statistics))))
+                         (stack 'print-statistics)))))
           (register-table
              (list (list 'pc pc)
                    (list 'flag flag))))
@@ -140,7 +142,7 @@
    (get-contents (get-register machine register-name)))
 
 (define (set-registe-contents! machine register-name value)
-   (get-register machine register-name) value 'done)
+   (set-contents!(get-register machine register-name) value) 'done)
 
 (define (get-register machine reg-name) ((machine 'get-register) reg-name))
 

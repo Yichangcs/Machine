@@ -25,12 +25,13 @@
                       insts
                       (cons
                         (make-label-entry
-                           next-inst insts labels))
+                           next-inst insts)
+                            labels))
                   (receive
                      (cons (make-instruction
                              next-inst)
                             insts)
-                     labels))))))))
+                     labels)))))))
 
 
 (define (update-insts! insts labels machine)
@@ -68,7 +69,7 @@
 (define (lookup-label labels label-name)
   (let ((val (assoc label-name labels)))
      (if val
-         (cdr val)
+         (cdr val)    ;; return a pointer to inst
          (error "Undefined label: ASSEMBLE" label-name))))
 
 
@@ -120,7 +121,7 @@
 
 
 ;; instruction selectors
-(define (assgin-reg-name assign-instructions)
+(define (assign-reg-name assign-instructions)
   (cadr assgin-instruction))
 
 (define (assign-value-exp assign-instruction)
@@ -136,7 +137,7 @@
   (make-test
     inst machine labels operations flag pc)
     (let ((condition (test-condition inst)))
-      (if (operations-exp? condition)
+      (if (operation-exp? condition)
           (let ((condition-proc
                   (make-operation-exp
                    condition
@@ -157,7 +158,7 @@
 (define
    (make-branch
     inst machine labels flag pc)
-   (let ((dest (branc-dest inst)))
+   (let ((dest (branch-dest inst)))
       (if (label-exp? dest)
           (let ((insts 
                   (lookup-label
@@ -165,8 +166,8 @@
                     (label-exp-label dest))))
             (lambda ()
               (if (get-contents flag)
-                  (set-contents! pc insts)
-                   (advance-pc))))
+                  (set-contents! pc insts)   ;; if condition is fullfilled, then jump
+                   (advance-pc))))           ;; if not, turn to next close inst
           (erro "Bad BRANCH instruction:
                  ASSEMBLE"
                  inst))))
@@ -219,8 +220,7 @@
 (define (stack-inst-reg-name stack-instruction)
    (cadr stack-instruction))
 
-(define (make-perform
-          inst machine labels operations pc)
+(define (make-perform inst machine labels operations pc)
   (let ((action (perform-action inst)))
     (if (operation-exp? action)
         (let ((action-proc 
@@ -235,10 +235,11 @@
        (error "Bad PERFORM instructioin: ASSEMBLE"
               inst))))
 
+(define (perform-action inst) (cdr inst))
 
 ;; Execution procedures for subexpressions
 (define (make-primitive-exp exp machine labels)
-   (cond ((constant-exp? exp)
+   (cond ((constant-exp? exp)                    ;; (const 0)
          (let ((c (constant-exp-value exp)))
            (lambda () c )))
          ((label-exp? exp)
@@ -247,7 +248,7 @@
                  labels
                 (label-exp-label exp))))
             (lambda () insts)))
-        ((register-exp? exp)
+        ((register-exp? exp)                     ;; (reg a)
         (let ((r (get-register
                  machine
                 (register-exp-reg exp))))
@@ -270,9 +271,7 @@
    (cadr exp))
 
 
-(define 
-  (make-operation-exp 
-      exp machine labels operations)
+(define (make-operation-exp exp machine labels operations)
    (let ((op (lookup-prim
                (operation-exp-op exp)
                operations))
@@ -281,8 +280,8 @@
                  (make-primitive-exp
                    e machine labels))
                (operation-exp-operands exp))))
-      (lambda () (apply op (map (lambda (p) (p))
-                                 aprocs)))))
+      (lambda () (apply op (map (lambda (p) (p))     ;; (assign t (op rem) (reg a) (reg b))
+                                 aprocs)))))         ;;
 
 
 (define (operation-exp? exp)
