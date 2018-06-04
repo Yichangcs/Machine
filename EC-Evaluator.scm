@@ -1,4 +1,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;        Register description             ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; exp- hold the expression to be evaluated
+; env- contains the environment in which the evaluation
+;      is to be performed
+; val- contains the value obtained by evaluating the
+;      expression in the designated environment
+; continue- to implement recursion
+; proc, argl, unev- used in evaluating combinations
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;        EC-Evaluator-controller          ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 eval-dispatch
