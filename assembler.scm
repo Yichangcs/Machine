@@ -1,17 +1,154 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;             The Assembler               ;;;;;
+;;;;           The machine                 ;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(load "machine.scm")
+(define (make-machine register-names ops controller-text)
+   (let ((machine (make-new-machine)))
+     (for-each (lambda (register-name)
+                  ((machine 'allocate-register) register-name))
+                register-names)
+     ((machine 'install-operations) ops)
+     ((machine 'install-instructions-sequence)
+      (assemble controller-text machine))
+     machine))
 
+;; Registers
+(define (make-register name)
+   (let ((contents '*unassigned*))
+     (define (dispatch message)
+        (cond ((eq? message 'get) contents)
+              ((eq? message 'set)
+               (lambda (value)
+                  (set! contents value)))
+              (else
+                 (error "Unknown request: REGISTER"
+                         message))))
+   dispatch))
 
+(define (get-contents register) (register 'get))
+(define (set-contents! register value)
+   ((register 'set) value))
+
+;; The stack
+(define (make-stack)
+   (let ((s '())
+         (number-pushes 0)
+         (current-depth 0)
+         (max-depth 0))
+     (define (push x)
+        (set! s (cons x s))
+        (set! number-pushes (+ 1 number-pushes))
+        (set! max-depth
+              (max current-depth max-depth)))
+     (define (pop)
+        (if (null? s) 
+            (error "Empty stack: POP")
+            (let ((top (car s)))
+              (set! s (cdr s))
+              (set! current-depth (- current-depth 1))
+              top)))
+     (define (initialize)
+        (set!  s '())
+        (set! number-pushes 0)
+        (set! max-depth 0)
+        (set! current-depth 0)
+    'done)
+     (define (print-statistics)
+        (newline)
+        (display (list 'total-pushes
+                       '=
+                        number-pushes
+                       'maximum-depth
+                       '=
+                        max-depth)))
+    (define (dispatch message)
+       (cond ((eq? message 'push) push)
+             ((eq? message 'pop) (pop))
+             ((eq? message 'initialize) (initialize))
+             ((eq? message 'print-statistics) (print-statistics))
+             (else
+               (error "Unknown request: STACK"
+                      message))))
+   dispatch))
+
+(define (pop stack)(stack 'pop))
+(define (push stack value) ((stack 'push) value))
+
+;; The Basic machine
+(define (make-new-machine)
+  (let ((pc (make-register 'pc))
+        (flag (make-register 'flag))
+        (stack (make-stack))
+        (the-instruction-sequence '()))
+     (let ((the-ops
+             (list 
+               (list 'initialize-stack
+                     (lambda () (stack 'initialize)))
+               (list 'print-stack-statistics
+                      (labmda ()
+                         (stack 'print-statistics)))))
+          (register-table
+             (list (list 'pc pc)
+                   (list 'flag flag))))
+       (define (allocate-register name)
+          (if (assoc name register-table)
+              (error
+                 "Multiply defined register: " name)
+              (set! register-table
+                    (cons 
+                      (list name (make-register name))
+                      register-table))) 
+              'register-allocated)
+       (define (lookup-register name)
+          (let ((val 
+                  (assoc name register-table)))
+             (if val
+                 (cadr val)
+                 (error "Unknown register:" name))))
+       (define (execute)
+          (let ((insts (get-contents pc)))
+            (if (null? insts)
+                'done
+                (begin
+                   ((instruction-execution-proc 
+                      (car insts)))
+                   (execute)))))
+       (define (dispatch message)
+          (cond ((eq? message 'start)
+                 (set-contents! pc the-instruction-sequence)
+                 (execute))
+                ((eq? message  'install-instructions-sequence)
+                 (lambda (seq) (set! the-instruction-sequence seq)))
+                ((eq? message 'allocate-register) allocate-register)
+                ((eq? message 'get-register) lookup-register)
+                ((eq? message 'install-operations)
+                   (lambda (ops)
+                      (set! the-ops (append the-ops ops))))
+                ((eq? message 'stack) stack)
+                ((eq? message 'operations) the-ops)
+                (else (error "Unknown request: MACHINE" message))))
+      dispatch)))
+
+;; Interface
+(define (start machine) (machine 'start))
+
+(define (get-register-contents machine register-name)
+   (get-contents (get-register machine register-name)))
+
+(define (set-register-contents! machine register-name value)
+   (set-contents!(get-register machine register-name) value) 'done)
+
+(define (get-register machine reg-name) ((machine 'get-register) reg-name))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;             The Assembler               ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (assemble controller-text machine)
    (extract-labels controller-text
       (lambda (insts labels)
          (update-insts! insts labels machine) 
        insts)))
-
 
 (define (extract-labels text receive)
    (if (null? text)
@@ -33,7 +170,6 @@
                             insts)
                      labels)))))))
 
-
 (define (update-insts! insts labels machine)
    (let ((pc (get-register machine 'pc))
         (flag (get-register machine 'flag))
@@ -53,7 +189,6 @@
             ops)))
       insts)))
 
-
 (define (make-instruction text) (cons text '()))
 
 (define (instruction-text inst) (car inst))
@@ -71,7 +206,6 @@
      (if val
          (cdr val)    ;; return a pointer to inst
          (error "Undefined label: ASSEMBLE" label-name))))
-
 
 ;; Generating Execution Procedures for Instructions
 (define (make-execution-procedure
@@ -97,7 +231,6 @@
         (else (error "Unknown instruction type: ASSEMBLE"
                inst))))
 
-
 (define (make-assign inst machine labels operations pc)
    (let ((target
           (get-register
@@ -119,7 +252,6 @@
          (set-contents!  target (value-proc))
          (advance-pc pc)))))
 
-
 ;; instruction selectors
 (define (assign-reg-name assign-instructions)
   (cadr assgin-instruction))
@@ -129,8 +261,6 @@
 
 (define (advance-pc pc)
    (set-contents! pc (cdr (get-contents pc))))
-
-
 
 ;; Test, branch, and goto instructions
 (define 
@@ -154,7 +284,6 @@
 (define (test-condition test-instruction)
    (cdr test-instruction))
 
-
 (define
    (make-branch
     inst machine labels flag pc)
@@ -174,7 +303,6 @@
 
 (define (branch-dest branch-instruction)
    (cadr branch-instruction))
-
 
 (define (make-goto inst machine labels pc)
    (let ((dest (goto-dest inst)))
@@ -197,7 +325,6 @@
            (else (error "Bad GOTO instruction: ASSEMBLE"
                         inst)))))
 
-
 ;; other instructions
 (define (make-save inst machine stack pc)
    (let ((reg (get-register
@@ -207,7 +334,6 @@
         (push stack (get-contents reg))
         (advance-pc pc))))
 
-
 (define (make-restore inst machine stack pc)
    (let ((reg (get-register
                machine
@@ -215,7 +341,6 @@
      (lambda ()
         (set-contents! reg (pop stack))
         (advance-pc))))
-
 
 (define (stack-inst-reg-name stack-instruction)
    (cadr stack-instruction))
@@ -256,7 +381,6 @@
        (else (error "Unknow expression type: ASSEMBLE"
                      exp))))
 
-
 (define (register-exp? exp)
    (tagged-list? exp 'reg))
 (define (register-exp-reg exp)
@@ -270,7 +394,6 @@
 (define (label-exp-label exp)
    (cadr exp))
 
-
 (define (make-operation-exp exp machine labels operations)
    (let ((op (lookup-prim
                (operation-exp-op exp)
@@ -283,7 +406,6 @@
       (lambda () (apply op (map (lambda (p) (p))     ;; (assign t (op rem) (reg a) (reg b))
                                  aprocs)))))         
 
-
 (define (operation-exp? exp)
    (and (pair? exp)
         (tagged-list? (car exp) 'op)))
@@ -292,7 +414,6 @@
 (define (operation-exp-operands operation-exp)
    (cdr operation-exp))
 
-
 (define (lookup-prim symbol operations)
   (let ((val (assoc symbol operations)))
     (if val
@@ -300,7 +421,5 @@
         (error "Unknow operation: ASSEMBLE"
               symbol))))
 
-
 (define (tagged-list? exp symbol)
    (eq? (car exp) symbl))
-

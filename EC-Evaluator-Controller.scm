@@ -13,7 +13,7 @@
 ;;;;        EC-Evaluator-controller          ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define EC-EVALUATOR-CONTROLLER
-'(controller	
+'(	
 read-eval-print-loop
   (perform (op initialize-stack))
   (perform (op prompt-for-input)
