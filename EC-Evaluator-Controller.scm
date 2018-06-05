@@ -15,7 +15,7 @@ read-eval-print-loop
   (perform (op prompt-for-input)
            (const ";;; EC-Eval input:"))
   (assign exp (op read))
-  (assign env (op get-global-environment))
+  (assign env (op setup-environment))
   (assign continue (label print-result))
   (goto (label eval-dispatch))
 print-result
@@ -130,7 +130,7 @@ apply-dispatch
   (branch (label compound-apply))
   (goto (label unknown-procedure-type))
 primitive-apply
-  (assign val (op apply-primitive-procedure)
+  (assign val (op meta-apply-primitive-procedure)
               (reg proc)
               (reg argl))
   (restore continue)

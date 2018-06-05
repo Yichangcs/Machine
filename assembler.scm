@@ -14,7 +14,7 @@
 
 ;; Registers
 (define (make-register name)
-   (let ((contents '*unassigned*))
+   (let ((contents '*unassigned*))    
      (define (dispatch message)
         (cond ((eq? message 'get) contents)
               ((eq? message 'set)

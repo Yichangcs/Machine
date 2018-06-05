@@ -69,6 +69,8 @@
                first-operand)
         (list 'rest-operands 
               rest-operands)
+        (list 'last-operand?
+              last-operand?)
         (list 'cond? 
                cond?)
         (list 'cond-else-clause? 
@@ -103,8 +105,6 @@
                enclosing-environment)
         (list 'first-frame 
                first-frame)
-        (list 'the-empty-environment 
-               the-empty-environment)
         (list 'make-frame 
                make-frame)
         (list 'frame-variables 
@@ -141,10 +141,14 @@
                user-print)
         (list 'read
                read)
+        (list 'empty-arglist empty-arglist)
+        (list 'adjoin-arg  adjoin-arg)
+        (list 'meta-apply-primitive-procedure
+               meta-apply-primitive-procedure)
   ))
 
-;(define eceval
-; (make-machine
-;   '(exp env val proc argl continue unev)
-;   eceval-operations  
-;        EC-EVALUATOR-CONTROLLER))
+(define eceval
+ (make-machine
+   '(exp env val proc argl continue unev)
+     eceval-operations  
+        EC-EVALUATOR-CONTROLLER))
