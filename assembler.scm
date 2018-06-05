@@ -231,14 +231,14 @@
         (else (error "Unknown instruction type: ASSEMBLE"
                inst))))
 
-(define (make-assign inst machine labels operations pc)
-   (let ((target
+(define (make-assign inst machine labels operations pc) 
+   (let ((target                      ;; (assign exp (op first-operand) (reg unev))
           (get-register
             machine
-            (assign-reg-name inst)))
-           (value-exp (assign-value-exp inst)))
+            (assign-reg-name inst)))       ;; target -> exp
+           (value-exp (assign-value-exp inst)))  ;; value-exp-> ((op first-operand) (reg unev))
      (let ((value-proc
-             (if (operation-exp? value-exp)
+             (if (operation-exp? value-exp)   ;; (op *)?
                  (make-operation-exp
                   value-exp
                   machine
@@ -398,8 +398,8 @@
    (cadr exp))
 
 (define (make-operation-exp exp machine labels operations)
-   (let ((op (lookup-prim
-               (operation-exp-op exp)
+   (let ((op (lookup-prim                             ;; lookup Machine's ops table
+               (operation-exp-op exp)                 ;; returning a lambda expression
                operations))
         (aprocs
           (map (lambda (e)
@@ -407,7 +407,7 @@
                    e machine labels))
                (operation-exp-operands exp))))
       (lambda () (apply op (map (lambda (p) (p))     ;; (assign t (op rem) (reg a) (reg b))
-                                 aprocs)))))         
+                                 aprocs)))))         ;; get the actual value of operands     
 
 (define (operation-exp? exp)
    (and (pair? exp)
