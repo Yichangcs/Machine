@@ -8,10 +8,6 @@
 ;      expression in the designated environment
 ; continue- to implement recursion
 ; proc, argl, unev- used in evaluating combinations
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;        EC-Evaluator-controller          ;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define EC-EVALUATOR-CONTROLLER	
 '(
 read-eval-print-loop
@@ -84,10 +80,10 @@ ev-application
    continue (label ev-appl-did-operator))
   (goto (label eval-dispatch))
 ev-appl-did-operator
-  (restore unev)             ; the operands
+  (restore unev)             
   (restore env)
   (assign argl (op empty-arglist))
-  (assign proc (reg val))    ; the operator
+  (assign proc (reg val))    
   (test (op no-operands?) (reg unev))
   (branch (label apply-dispatch))
   (save proc)
@@ -181,12 +177,11 @@ ev-sequence-last-exp
   (restore continue)
   (goto (label eval-dispatch))
 ev-if
-  (save exp)   ; save expression for later
+  (save exp)   
   (save env)
   (save continue)
   (assign continue (label ev-if-decide))
   (assign exp (op if-predicate) (reg exp))
-  ; evaluate the predicate:
   (goto (label eval-dispatch))  
 ev-if-decide
   (restore continue)
@@ -204,7 +199,7 @@ ev-assignment
   (assign unev 
           (op assignment-variable)
           (reg exp))
-  (save unev)   ; save variable for later
+  (save unev)  
   (assign exp
           (op assignment-value)
           (reg exp))
@@ -212,7 +207,6 @@ ev-assignment
   (save continue)
   (assign continue
           (label ev-assignment-1))
-  ; evaluate the assignment value:
   (goto (label eval-dispatch))  
 ev-assignment-1
   (restore continue)
@@ -229,14 +223,13 @@ ev-definition
   (assign unev 
           (op definition-variable)
           (reg exp))
-  (save unev)   ; save variable for later
+  (save unev)   
   (assign exp 
           (op definition-value)
           (reg exp))
   (save env)
   (save continue)
   (assign continue (label ev-definition-1))
-  ; evaluate the definition value:
   (goto (label eval-dispatch))  
 ev-definition-1
   (restore continue)
@@ -254,7 +247,6 @@ unknown-expression-type
    (const unknown-expression-type-error))
   (goto (label signal-error))
 unknown-procedure-type
-  ; clean up stack (from apply-dispatch):
   (restore continue)    
   (assign 
    val
