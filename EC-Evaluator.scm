@@ -1,5 +1,3 @@
-
-(load "Machine.scm")
 (load "assembler.scm")
 (load "evaluator.scm")
 
@@ -14,3 +12,4 @@
               self-evaluating)
         ;complete list of operations for eceval machine
   ))
+

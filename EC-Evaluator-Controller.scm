@@ -12,8 +12,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;        EC-Evaluator-controller          ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define EC-EVALUATOR-CONTROLLER
-'(	
+(define EC-EVALUATOR-CONTROLLER	
+'(
 read-eval-print-loop
   (perform (op initialize-stack))
   (perform (op prompt-for-input)
@@ -263,4 +263,4 @@ unknown-procedure-type
 signal-error
   (perform (op user-print) (reg val))
   (goto (label read-eval-print-loop))
-)
+))

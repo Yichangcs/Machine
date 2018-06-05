@@ -85,7 +85,7 @@
                (list 'initialize-stack
                      (lambda () (stack 'initialize)))
                (list 'print-stack-statistics
-                      (labmda ()
+                      (lambda ()
                          (stack 'print-statistics)))))
           (register-table
              (list (list 'pc pc)
@@ -211,7 +211,7 @@
 (define (make-execution-procedure
         inst labels machine pc flag stack ops)
   (cond ((eq? (car inst) 'assign)
-         (make-assgin
+         (make-assign
           inst machine labels ops pc))
         ((eq? (car inst) 'test)
          (make-test
@@ -227,7 +227,7 @@
          (make-restore inst machine stack pc))
         ((eq? (car inst) 'perform)
          (make-perform 
-          inst machine lables ops pc))
+          inst machine labels ops pc))
         (else (error "Unknown instruction type: ASSEMBLE"
                inst))))
 
@@ -254,10 +254,10 @@
 
 ;; instruction selectors
 (define (assign-reg-name assign-instructions)
-  (cadr assgin-instruction))
+  (cadr assign-instructions))
 
 (define (assign-value-exp assign-instruction)
-   (cddr assgin-instruction))
+   (cddr assign-instruction))
 
 (define (advance-pc pc)
    (set-contents! pc (cdr (get-contents pc))))
@@ -279,7 +279,7 @@
                   flag (condition-proc))
                (advance-pc)))
           (error "Bad TEST instruction:
-                  ASSEMBLE" inst)))
+                  ASSEMBLE" inst))))
 
 (define (test-condition test-instruction)
    (cdr test-instruction))
@@ -297,7 +297,7 @@
               (if (get-contents flag)
                   (set-contents! pc insts)   ;; if condition is fullfilled, then jump
                    (advance-pc))))           ;; if not, turn to next close inst
-          (erro "Bad BRANCH instruction:
+          (error "Bad BRANCH instruction:
                  ASSEMBLE"
                  inst))))
 
@@ -324,6 +324,9 @@
                  (get-contents reg)))))
            (else (error "Bad GOTO instruction: ASSEMBLE"
                         inst)))))
+
+(define (goto-dest goto-instruction)
+   (cadr goto-instruction))
 
 ;; other instructions
 (define (make-save inst machine stack pc)
@@ -399,7 +402,7 @@
                (operation-exp-op exp)
                operations))
         (aprocs
-          (map (lambad (e)
+          (map (lambda (e)
                  (make-primitive-exp
                    e machine labels))
                (operation-exp-operands exp))))
@@ -422,4 +425,4 @@
               symbol))))
 
 (define (tagged-list? exp symbol)
-   (eq? (car exp) symbl))
+   (eq? (car exp) symbol))
