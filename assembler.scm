@@ -281,7 +281,7 @@
                    e machine labels))
                (operation-exp-operands exp))))
       (lambda () (apply op (map (lambda (p) (p))     ;; (assign t (op rem) (reg a) (reg b))
-                                 aprocs)))))         ;;
+                                 aprocs)))))         
 
 
 (define (operation-exp? exp)

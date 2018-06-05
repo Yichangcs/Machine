@@ -12,6 +12,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;        EC-Evaluator-controller          ;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define EC-EVALUATOR-CONTROLLER
+'(controller	
+read-eval-print-loop
+  (perform (op initialize-stack))
+  (perform (op prompt-for-input)
+           (const ";;; EC-Eval input:"))
+  (assign exp (op read))
+  (assign env (op get-global-environment))
+  (assign continue (label print-result))
+  (goto (label eval-dispatch))
+print-result
+  (perform (op announce-output)
+           (const ";;; EC-Eval value:"))
+  (perform (op user-print) (reg val))
+  (goto (label read-eval-print-loop))
 eval-dispatch
   (test (op self-evaluating?) (reg exp))
   (branch (label ev-self-eval))
@@ -32,10 +47,6 @@ eval-dispatch
   (test (op application?) (reg exp))
   (branch (label ev-application))
   (goto (label unknown-expression-type))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;      evaluating simple expressions      ;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ev-self-eval
   (assign val (reg exp))
   (goto (reg continue))
@@ -63,10 +74,6 @@ ev-lambda
           (reg exp)
           (reg env))
   (goto (reg continue))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;    Evaluating procedure applications    ;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ev-application
   (save continue)
   (save env)
@@ -76,8 +83,6 @@ ev-application
   (assign
    continue (label ev-appl-did-operator))
   (goto (label eval-dispatch))
-
-
 ev-appl-did-operator
   (restore unev)             ; the operands
   (restore env)
@@ -86,8 +91,6 @@ ev-appl-did-operator
   (test (op no-operands?) (reg unev))
   (branch (label apply-dispatch))
   (save proc)
-
-
 ev-appl-operand-loop
   (save argl)
   (assign exp
@@ -100,8 +103,6 @@ ev-appl-operand-loop
   (assign continue 
           (label ev-appl-accumulate-arg))
   (goto (label eval-dispatch))
-
-
 ev-appl-accumulate-arg
   (restore unev)
   (restore env)
@@ -114,8 +115,6 @@ ev-appl-accumulate-arg
           (op rest-operands)
           (reg unev))
   (goto (label ev-appl-operand-loop))
-
-
 ev-appl-last-arg
   (assign continue 
           (label ev-appl-accum-last-arg))
@@ -128,25 +127,18 @@ ev-appl-accum-last-arg
           (reg argl))
   (restore proc)
   (goto (label apply-dispatch))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;          Procedure application          ;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 apply-dispatch
   (test (op primitive-procedure?) (reg proc))
   (branch (label primitive-apply))
   (test (op compound-procedure?) (reg proc))
   (branch (label compound-apply))
   (goto (label unknown-procedure-type))
-
 primitive-apply
   (assign val (op apply-primitive-procedure)
               (reg proc)
               (reg argl))
   (restore continue)
   (goto (reg continue))
-
 compound-apply
   (assign unev 
           (op procedure-parameters)
@@ -163,3 +155,112 @@ compound-apply
           (op procedure-body)
           (reg proc))
   (goto (label ev-sequence))
+ev-begin
+  (assign unev
+          (op begin-actions)
+          (reg exp))
+  (save continue)
+  (goto (label ev-sequence))
+ev-sequence
+  (assign exp (op first-exp) (reg unev))
+  (test (op last-exp?) (reg unev))
+  (branch (label ev-sequence-last-exp))
+  (save unev)
+  (save env)
+  (assign continue
+          (label ev-sequence-continue))
+  (goto (label eval-dispatch))
+ev-sequence-continue
+  (restore env)
+  (restore unev)
+  (assign unev
+          (op rest-exps)
+          (reg unev))
+  (goto (label ev-sequence))
+ev-sequence-last-exp
+  (restore continue)
+  (goto (label eval-dispatch))
+ev-if
+  (save exp)   ; save expression for later
+  (save env)
+  (save continue)
+  (assign continue (label ev-if-decide))
+  (assign exp (op if-predicate) (reg exp))
+  ; evaluate the predicate:
+  (goto (label eval-dispatch))  
+ev-if-decide
+  (restore continue)
+  (restore env)
+  (restore exp)
+  (test (op true?) (reg val))
+  (branch (label ev-if-consequent))
+ev-if-alternative
+  (assign exp (op if-alternative) (reg exp))
+  (goto (label eval-dispatch))
+ev-if-consequent
+  (assign exp (op if-consequent) (reg exp))
+  (goto (label eval-dispatch))
+ev-assignment
+  (assign unev 
+          (op assignment-variable)
+          (reg exp))
+  (save unev)   ; save variable for later
+  (assign exp
+          (op assignment-value)
+          (reg exp))
+  (save env)
+  (save continue)
+  (assign continue
+          (label ev-assignment-1))
+  ; evaluate the assignment value:
+  (goto (label eval-dispatch))  
+ev-assignment-1
+  (restore continue)
+  (restore env)
+  (restore unev)
+  (perform (op set-variable-value!)
+           (reg unev)
+           (reg val)
+           (reg env))
+  (assign val
+          (const ok))
+  (goto (reg continue))
+ev-definition
+  (assign unev 
+          (op definition-variable)
+          (reg exp))
+  (save unev)   ; save variable for later
+  (assign exp 
+          (op definition-value)
+          (reg exp))
+  (save env)
+  (save continue)
+  (assign continue (label ev-definition-1))
+  ; evaluate the definition value:
+  (goto (label eval-dispatch))  
+ev-definition-1
+  (restore continue)
+  (restore env)
+  (restore unev)
+  (perform (op define-variable!)
+           (reg unev)
+           (reg val)
+           (reg env))
+  (assign val (const ok))
+  (goto (reg continue))
+unknown-expression-type
+  (assign 
+   val
+   (const unknown-expression-type-error))
+  (goto (label signal-error))
+unknown-procedure-type
+  ; clean up stack (from apply-dispatch):
+  (restore continue)    
+  (assign 
+   val
+   (const unknown-procedure-type-error))
+  (goto (label signal-error))
+signal-error
+  (perform (op user-print) (reg val))
+  (goto (label read-eval-print-loop))
+)
