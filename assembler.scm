@@ -126,6 +126,7 @@
                       (set! the-ops (append the-ops ops))))
                 ((eq? message 'stack) stack)
                 ((eq? message 'operations) the-ops)
+                ((eq? message 'instruction-sequence) the-instruction-sequence)
                 (else (error "Unknown request: MACHINE" message))))
       dispatch)))
 
