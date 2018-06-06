@@ -217,7 +217,7 @@ ev-assignment-1
            (reg val)
            (reg env))
   (assign val
-          (const ok))
+          (const 'ok))
   (goto (reg continue))
 ev-definition
   (assign unev 
@@ -239,7 +239,7 @@ ev-definition-1
            (reg unev)
            (reg val)
            (reg env))
-  (assign val (const ok))
+  (assign val (const 'ok))
   (goto (reg continue))
 unknown-expression-type
   (assign 

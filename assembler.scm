@@ -278,7 +278,7 @@
             (lambda ()
                (set-contents!
                   flag (condition-proc))
-               (advance-pc)))
+               (advance-pc pc)))
           (error "Bad TEST instruction:
                   ASSEMBLE" inst))))
 
@@ -297,7 +297,7 @@
             (lambda ()
               (if (get-contents flag)
                   (set-contents! pc insts)   ;; if condition is fullfilled, then jump
-                   (advance-pc))))           ;; if not, turn to next close inst
+                   (advance-pc pc))))           ;; if not, turn to next close inst
           (error "Bad BRANCH instruction:
                  ASSEMBLE"
                  inst))))
@@ -344,7 +344,7 @@
               (stack-inst-reg-name inst))))
      (lambda ()
         (set-contents! reg (pop stack))
-        (advance-pc))))
+        (advance-pc pc))))
 
 (define (stack-inst-reg-name stack-instruction)
    (cadr stack-instruction))
@@ -360,7 +360,7 @@
                   operations)))
           (lambda ()
              (action-proc)
-             (advance-pc)))
+             (advance-pc pc)))
        (error "Bad PERFORM instructioin: ASSEMBLE"
               inst))))
 
