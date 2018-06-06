@@ -259,7 +259,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Testing of predicates
  (define (true? x) (not (eq? x false)))
- (define (fasle? x) (eq? x false))
+ (define (false? x) (eq? x false))
 
 ;; Compound procedures
 (define (make-procedure parameters body env)     ;; used in eval when processing lambda expression
