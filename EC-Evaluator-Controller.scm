@@ -15,7 +15,7 @@ read-eval-print-loop
   (perform (op prompt-for-input)
            (const ";;; EC-Eval input:"))
   (assign exp (op read))
-  (assign env (op setup-environment))
+  (assign env (op get-global-environment))
   (assign continue (label print-result))
   (goto (label eval-dispatch))
 print-result

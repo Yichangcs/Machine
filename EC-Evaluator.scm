@@ -145,6 +145,8 @@
         (list 'adjoin-arg  adjoin-arg)
         (list 'meta-apply-primitive-procedure
                meta-apply-primitive-procedure)
+        (list 'get-global-environment
+               get-global-environment)
   ))
 
 (define eceval

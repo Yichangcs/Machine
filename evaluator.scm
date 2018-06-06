@@ -378,6 +378,13 @@
 
 (define the-global-environment (setup-environment))
 
+(define (get-global-environment) the-global-environment)
+
+;; note that there is significant difference between
+;; (define (x) y) 
+;; and 
+;; (define x y)
+
 (define (primitive-procedure? proc)   ;; a primitive procedures is represented as 
    (tagged-list? proc 'primitive))    ;; a list beginning with "primitive" and containing a procedure
                                       ;; in the underlying Lisp that implements that primitive
