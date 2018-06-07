@@ -56,4 +56,26 @@ Our assembler is able to interpreter register-level machine language, translate 
               .......
 
       
-      
+Notice that these lambda expressions are all with only formal arguments waiting to be feed into real value, which would 
+not happedn until we *Start Machine* 
+
+
+## A simple case- To realize a simple Machine which is capable of computing max common factor of two numbers.
+
+
+                (define gcd-machine
+                  (make-machine
+                   '(a b t)
+                   (list (list 'rem remainder) (list '= =))
+                   '(test-b
+                       (test (op =) (reg b) (const 0))
+                       (branch (label gcd-done))
+                       (assign t (op rem) (reg a) (reg b))
+                       (assign a (reg b))
+                       (assign b (reg t))
+                       (goto (label test-b))
+                     gcd-done)))
+                     
+step1. to make a new machine:
+
+ 
