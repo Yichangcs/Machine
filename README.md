@@ -60,22 +60,43 @@ Notice that these lambda expressions are all with only formal arguments waiting 
 not happedn until we *Start Machine* 
 
 
-## A simple case- To realize a simple Machine which is capable of computing max common factor of two numbers.
+## Running a Scheme Interpreter in our Register Machine Simulator
+1. The instruction-set of Scheme Interpreter is contained in 
 
-
-                (define gcd-machine
-                  (make-machine
-                   '(a b t)
-                   (list (list 'rem remainder) (list '= =))
-                   '(test-b
-                       (test (op =) (reg b) (const 0))
-                       (branch (label gcd-done))
-                       (assign t (op rem) (reg a) (reg b))
-                       (assign a (reg b))
-                       (assign b (reg t))
-                       (goto (label test-b))
-                     gcd-done)))
+                EC-Evaluator-Controller.scm
                      
-step1. to make a new machine:
+step1. to make a new Machine:
 
+                (define eceval
+                 (make-machine
+                   '(exp env val proc argl continue unev)
+                     eceval-operations  
+                        EC-EVALUATOR-CONTROLLER))
  
+step2. Load the Machine into the Scheme system's REPL environment:
+
+                        (load "EC-Evaluator")
+                        
+       
+step3. Start the Machine and enter the scheme interpreter's REPL environment which is running in the Machine Simulator
+
+                (start eceval)
+                        
+                ;;; EC-Eval input:
+ 
+step4. Feed in some expressions and waiting for the result!
+
+                ;;; EC-Eval input:
+                (define (fac n)
+                   (if (= n 1) 1 
+                       (* (fac (- n 1)) n)))
+                 
+                ;;; EC-Eval value:
+                ok!
+                
+                ;;; EC-Eval input:
+                (fac 4)
+                
+                ;;; EC-Eval value:
+                24
+                 
