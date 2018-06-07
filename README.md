@@ -61,9 +61,11 @@ not happedn until we *Start Machine*
 
 
 ## Running a Scheme Interpreter in our Register Machine Simulator
-1. The instruction-set of Scheme Interpreter is contained in 
+### 1. The instruction-set of Scheme Interpreter is contained in 
 
                 EC-Evaluator-Controller.scm
+        
+### 2. How to run the interpreter in this Register Machine Simulator        
                      
 step1. to make a new Machine:
 
