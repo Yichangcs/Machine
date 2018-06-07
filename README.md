@@ -41,11 +41,23 @@ Our assembler is able to interpreter register-level machine language, translate 
 
 
      ((perform (op user-print) (reg val))    =>	 #[compound-procedure 12])   ;;lambda expressions
+     
+     
      ((goto (label read-eval-print-loop))    =>  #[compound-procedure 13])   ;;lambda expressions
+     
+     
      ((test (op self-evaluating?) (reg exp)) =>	 #[compound-procedure 14])   ;;lambda expressions
+     
+     
      ((branch (label ev-self-eval))          =>  #[compound-procedure 15])   ;;lambda expressions
+     
+     
      ((test (op variable?) (reg exp))        =>  #[compound-procedure 16])   ;;lambda expressions
+     
+     
      ((branch (label ev-variable))           =>  #[compound-procedure 17])   ;;lambda expressions
+     
+     
       .......
       
       
