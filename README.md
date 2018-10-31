@@ -10,15 +10,15 @@ functions
 
         (assign ⟨register-name⟩ 
                 (op ⟨operation-name⟩) 
-                ⟨input₁⟩ … ⟨inputₙ⟩)
+                ⟨input₁⟩ … ⟨input⟩)
         (perform (op ⟨operation-name⟩) 
                  ⟨input₁⟩ 
                  … 
-                 ⟨inputₙ⟩)
+                 ⟨input⟩)
         (test (op ⟨operation-name⟩) 
               ⟨input₁⟩ 
               … 
-              ⟨inputₙ⟩)
+              ⟨input⟩)
         (branch (label ⟨label-name⟩))
         (goto (label ⟨label-name⟩))
       
@@ -36,6 +36,7 @@ functions
            (set-contents!(get-register machine register-name) value) 'done)
 
 5. Assembler
+
 Our assembler is able to interpreter register-level machine language, translate it into corresponding Scheme lambda procedures
 
 
@@ -57,7 +58,7 @@ Our assembler is able to interpreter register-level machine language, translate 
 
       
 Notice that these lambda expressions are all with only formal arguments waiting to be feed into real value, which would 
-not happedn until we *Start Machine* 
+not happen until we *Start Machine* 
 
 
 ## Running a Scheme Interpreter in our Register Machine Simulator
