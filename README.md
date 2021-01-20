@@ -1,5 +1,5 @@
 # Machine
-A Register-Machine Simulator implemented in Scheme
+The Register-Machine Simulator in SICP which is implementd in Scheme.
 
 ## what is a Register-Machine(Simulator)
 A Register-Machine consists of servral parts:
