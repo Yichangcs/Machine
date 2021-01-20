@@ -1,5 +1,5 @@
 # Machine
-The Register-Machine Simulator in SICP which is implementd in Scheme.
+The Register-Machine Simulator in SICP[1] which is implementd in Scheme.
 
 ## what is a Register-Machine(Simulator)
 A Register-Machine consists of servral parts:
@@ -103,3 +103,4 @@ step4. Feed in some expressions and waiting for the result!
                 ;;; EC-Eval value:
                 24
                  
+[1] SICP-> http://sarabander.github.io/sicp/html/index.xhtml#SEC_Contents
