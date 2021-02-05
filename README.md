@@ -1,4 +1,4 @@
-# Machine
+## Machine
 The Register-Machine Simulator in SICP[1] which is implementd in Scheme.
 
 ## what is a Register-Machine(Simulator)
