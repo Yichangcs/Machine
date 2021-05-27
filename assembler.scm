@@ -171,6 +171,27 @@
                             insts)
                      labels)))))))
 
+(define (extract-labels-2 text)
+  (if (null? text)
+      (cons '() '())
+      (let ((result 
+             (extract-labels-2 (cdr text))))
+        (let ((insts (car result))
+              (labels (cdr result)))
+          (let ((next-inst (car text)))
+            (if (symbol? next-inst)
+                (cons 
+                 insts
+                 (cons 
+                  (make-label-entry 
+                   next-inst insts) 
+                  labels))
+                 (cons 
+                  (cons 
+                  (make-instruction next-inst) 
+                  insts)
+                 labels)))))))
+                 
 (define (update-insts! insts labels machine)
    (let ((pc (get-register machine 'pc))
         (flag (get-register machine 'flag))
